@@ -1,0 +1,48 @@
+def phred33toQ(qual):
+    return ord(qual) - 33
+
+def readFastq(filename):
+    sequences = []
+    qualities = []
+    with open(filename) as fh:
+        while True:
+            fh.readline()  # skip name line
+            seq = fh.readline().rstrip()  # read base sequence
+            fh.readline()  # skip placeholder line
+            qual = fh.readline().rstrip() # base quality line
+            if len(seq) == 0:
+                break
+            sequences.append(seq)
+            qualities.append(qual)
+    return sequences, qualities
+
+genome, qualities = readFastq('ERR037900_1.first1000.fastq')
+
+
+
+def lowestqualscore(qualities):
+    allthequals = []
+    i = 0
+    for num in range(len(qualities[1])):
+        listofreads = []
+        for reads in qualities:
+            listofreads.append(reads[i])
+        allthequals.append(listofreads)
+        i+=1
+
+
+    for index1, elements in enumerate(allthequals):
+        for num, char in enumerate(elements):
+            allthequals[index1][num] = phred33toQ(char)
+        
+    avgqscore = []
+    for elements in allthequals:
+        t = sum(elements)/len(elements)
+        avgqscore.append(t)
+
+    print('The cycle with a quality problem was number ' + str(avgqscore.index(min(avgqscore))) + '.' +
+'\n The average quality score at this position was', min(avgqscore))
+
+
+
+lowestqualscore(qualities)
